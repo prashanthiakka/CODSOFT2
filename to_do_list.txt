@@ -1,0 +1,78 @@
+from tkinter import *
+from tkinter import ttk
+
+class Todo:
+    def __init__(self, root):
+        self.root = root
+        self.root.title('To-do List')
+        self.root.geometry("800x600+300+150")
+        self.root.configure(bg="beige")  
+
+        
+        self.root.resizable(False, False)
+
+       
+        frame = Frame(self.root, bd=3, relief=SOLID, bg="black")
+        frame.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+        self.tasks = []
+
+        
+        cursive_font = ('French Script MT', 28, 'bold')  
+        cursive_font_text = ('French Script MT', 18)  
+
+        self.label = Label(frame, text="Your List", font=cursive_font, width=20, bd=5, bg="beige", fg='black')  
+        self.label.pack(side='top', fill=BOTH)
+
+       
+        self.text = Text(frame, height=3, width=30, font=cursive_font_text, bg="beige")  
+        self.text.pack(pady=10)
+
+        self.add_button = ttk.Button(frame, text="Add", width=12, style='C.TButton', command=self.add_task)
+        self.add_button.pack()
+
+        self.delete_button = ttk.Button(frame, text="Delete", width=12, style='C.TButton', command=self.delete_task)
+        self.delete_button.pack()
+
+        self.main_text = Listbox(frame, height=12, bd=5, width=23, font=cursive_font_text, bg="beige")  
+        self.main_text.pack(pady=10)
+        self.main_text.bind('<<ListboxSelect>>', self.mark_done)
+
+        
+        self.instruction_label = Label(frame, text="Select tasks to mark them as done", font=('Lucida Sans', 12, 'italic'), bg="beige", fg='black')  # Change to beige
+        self.instruction_label.pack(pady=5)
+
+        style = ttk.Style()
+        style.configure('C.TButton', font=('Lucida Sans', 16, 'bold'), background='#8B4513', foreground='black')
+
+    def add_task(self):
+        task = self.text.get("1.0", END).strip()
+        if task:
+            task_with_bullet = "\u2022 " + task  # Use Unicode character for bullet
+            self.tasks.append((task_with_bullet, False))  # Store tasks as tuples (task, done)
+            self.main_text.insert(END, task_with_bullet)
+            self.text.delete("1.0", END)
+
+    def delete_task(self):
+        selected_task = self.main_text.curselection()
+        if selected_task:
+            task_index = selected_task[0]
+            del self.tasks[task_index]
+            self.main_text.delete(task_index)
+
+    def mark_done(self, event):
+        selected_task = self.main_text.curselection()
+        if selected_task:
+            task_index = selected_task[0]
+            task, done = self.tasks[task_index]
+            if not done:
+                self.tasks[task_index] = (task + " \u2713", True)  # Use Unicode character for checkmark
+                self.main_text.itemconfig(task_index, {'fg': 'gray'})  # Change text color to gray for completed task
+
+def main():
+    root = Tk()
+    ui = Todo(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
